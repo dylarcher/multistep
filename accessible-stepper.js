@@ -1,7 +1,7 @@
 /**
  * Accessible Stepper Web Component
  * WCAG 2.2 AA compliant with WAI-ARIA support
- * 
+ *
  * @example
  * <accessible-stepper current="1" mode="steps">
  *   <div data-step data-label="Account">Step 1 content</div>
@@ -282,9 +282,7 @@ class AccessibleStepper extends HTMLElement {
   }
 
   get progress() {
-    return this.totalSteps > 1 
-      ? Math.round((this._current / (this.totalSteps - 1)) * 100) 
-      : 100;
+    return this.totalSteps > 1 ? Math.round((this._current / (this.totalSteps - 1)) * 100) : 100;
   }
 
   next() {
@@ -307,9 +305,7 @@ class AccessibleStepper extends HTMLElement {
     const styleSheet = document.createElement('style');
     styleSheet.textContent = styles;
 
-    const nav = this._mode === 'progress' 
-      ? this._renderProgressBar() 
-      : this._renderStepIndicator();
+    const nav = this._mode === 'progress' ? this._renderProgressBar() : this._renderStepIndicator();
 
     const content = document.createElement('div');
     content.className = 'step-content';
@@ -456,7 +452,10 @@ class AccessibleStepper extends HTMLElement {
 
       if (progressBar) {
         progressBar.setAttribute('aria-valuenow', this.progress);
-        progressBar.setAttribute('aria-valuetext', `Step ${index + 1} of ${this.totalSteps}: ${label}`);
+        progressBar.setAttribute(
+          'aria-valuetext',
+          `Step ${index + 1} of ${this.totalSteps}: ${label}`
+        );
       }
       if (progressFill) {
         progressFill.style.width = `${this.progress}%`;
@@ -493,23 +492,25 @@ class AccessibleStepper extends HTMLElement {
     }
 
     // Dispatch event
-    this.dispatchEvent(new CustomEvent('stepchange', {
-      bubbles: true,
-      composed: true,
-      detail: {
-        current: index,
-        previous: previousIndex,
-        total: this.totalSteps,
-        label,
-        progress: this.progress
-      }
-    }));
+    this.dispatchEvent(
+      new CustomEvent('stepchange', {
+        bubbles: true,
+        composed: true,
+        detail: {
+          current: index,
+          previous: previousIndex,
+          total: this.totalSteps,
+          label,
+          progress: this.progress,
+        },
+      })
+    );
   }
 
   _setupEventListeners() {
     this._handleClick = this._handleClick.bind(this);
     this._handleKeydown = this._handleKeydown.bind(this);
-    
+
     this.shadowRoot.addEventListener('click', this._handleClick);
     this.shadowRoot.addEventListener('keydown', this._handleKeydown);
   }
@@ -525,11 +526,13 @@ class AccessibleStepper extends HTMLElement {
     // Navigation buttons
     if (target.classList.contains('stepper-btn--next')) {
       if (this._current === this.totalSteps - 1) {
-        this.dispatchEvent(new CustomEvent('complete', {
-          bubbles: true,
-          composed: true,
-          detail: { current: this._current }
-        }));
+        this.dispatchEvent(
+          new CustomEvent('complete', {
+            bubbles: true,
+            composed: true,
+            detail: { current: this._current },
+          })
+        );
       } else {
         this.next();
       }
@@ -545,7 +548,7 @@ class AccessibleStepper extends HTMLElement {
     if (target.classList.contains('step-marker') && target.hasAttribute('data-interactive')) {
       const li = target.closest('li');
       const index = parseInt(li.dataset.index, 10);
-      if (!isNaN(index)) {
+      if (!Number.isNaN(index)) {
         this.goTo(index);
       }
     }

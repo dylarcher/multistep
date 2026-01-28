@@ -3,14 +3,14 @@
  * Provides: useAccessibleStepper hook, withStepper HOC, and StepperProvider context
  */
 
-import { 
-  useRef, 
-  useEffect, 
-  useState, 
-  useCallback, 
-  createContext, 
+import {
+  createContext,
+  forwardRef,
+  useCallback,
   useContext,
-  forwardRef
+  useEffect,
+  useRef,
+  useState,
 } from 'react';
 
 // Ensure web component is registered (side effect import)
@@ -22,12 +22,7 @@ import './accessible-stepper.js';
  * @param {Object} options - Configuration options
  */
 export function useAccessibleStepper(totalSteps, options = {}) {
-  const { 
-    initialStep = 0, 
-    onStepChange, 
-    onComplete,
-    validateStep
-  } = options;
+  const { initialStep = 0, onStepChange, onComplete, validateStep } = options;
 
   const [currentStep, setCurrentStep] = useState(initialStep);
   const [stepData, setStepData] = useState({});
@@ -37,14 +32,12 @@ export function useAccessibleStepper(totalSteps, options = {}) {
   const canGoPrev = currentStep > 0;
   const isFirst = currentStep === 0;
   const isLast = currentStep === totalSteps - 1;
-  const progress = totalSteps > 1 
-    ? Math.round((currentStep / (totalSteps - 1)) * 100) 
-    : 100;
+  const progress = totalSteps > 1 ? Math.round((currentStep / (totalSteps - 1)) * 100) : 100;
 
   const updateStepData = useCallback((step, data) => {
-    setStepData(prev => ({
+    setStepData((prev) => ({
       ...prev,
-      [step]: { ...prev[step], ...data }
+      [step]: { ...prev[step], ...data },
     }));
   }, []);
 
@@ -55,12 +48,12 @@ export function useAccessibleStepper(totalSteps, options = {}) {
     if (validateStep) {
       const validationResult = await validateStep(currentStep, stepData[currentStep]);
       if (validationResult !== true) {
-        setErrors(prev => ({ ...prev, [currentStep]: validationResult }));
+        setErrors((prev) => ({ ...prev, [currentStep]: validationResult }));
         return false;
       }
     }
 
-    setErrors(prev => ({ ...prev, [currentStep]: null }));
+    setErrors((prev) => ({ ...prev, [currentStep]: null }));
     const nextStep = currentStep + 1;
     setCurrentStep(nextStep);
     onStepChange?.(nextStep, currentStep);
@@ -75,19 +68,22 @@ export function useAccessibleStepper(totalSteps, options = {}) {
     return true;
   }, [canGoPrev, currentStep, onStepChange]);
 
-  const goTo = useCallback((step) => {
-    if (step < 0 || step >= totalSteps) return false;
-    const oldStep = currentStep;
-    setCurrentStep(step);
-    onStepChange?.(step, oldStep);
-    return true;
-  }, [totalSteps, currentStep, onStepChange]);
+  const goTo = useCallback(
+    (step) => {
+      if (step < 0 || step >= totalSteps) return false;
+      const oldStep = currentStep;
+      setCurrentStep(step);
+      onStepChange?.(step, oldStep);
+      return true;
+    },
+    [totalSteps, currentStep, onStepChange]
+  );
 
   const complete = useCallback(async () => {
     if (validateStep) {
       const validationResult = await validateStep(currentStep, stepData[currentStep]);
       if (validationResult !== true) {
-        setErrors(prev => ({ ...prev, [currentStep]: validationResult }));
+        setErrors((prev) => ({ ...prev, [currentStep]: validationResult }));
         return false;
       }
     }
@@ -117,7 +113,7 @@ export function useAccessibleStepper(totalSteps, options = {}) {
     complete,
     reset,
     updateStepData,
-    setCurrentStep
+    setCurrentStep,
   };
 }
 
@@ -125,16 +121,9 @@ export function useAccessibleStepper(totalSteps, options = {}) {
 const StepperContext = createContext(null);
 
 export function StepperProvider({ children, ...stepperOptions }) {
-  const stepper = useAccessibleStepper(
-    stepperOptions.totalSteps,
-    stepperOptions
-  );
+  const stepper = useAccessibleStepper(stepperOptions.totalSteps, stepperOptions);
 
-  return (
-    <StepperContext.Provider value={stepper}>
-      {children}
-    </StepperContext.Provider>
-  );
+  return <StepperContext.Provider value={stepper}>{children}</StepperContext.Provider>;
 }
 
 export function useStepper() {
@@ -244,7 +233,7 @@ export function useStepperRef() {
     },
     get progress() {
       return ref.current?.progress ?? 0;
-    }
+    },
   };
 
   return [ref, api];
