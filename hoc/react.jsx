@@ -14,7 +14,7 @@ import {
 } from 'react';
 
 // Ensure web component is registered (side effect import)
-import './accessible-stepper.js';
+import '../main.js';
 
 /**
  * Custom hook for stepper state management
