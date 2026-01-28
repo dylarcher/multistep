@@ -1,4 +1,4 @@
-# Accessible Stepper Component
+# Accessible Progression/MultiStep Component
 
 A WCAG 2.2 AA compliant stepper/wizard component built as a vanilla Web Component with TypeScript React wrapper support.
 
