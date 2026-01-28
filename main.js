@@ -49,6 +49,27 @@ const styles = `
     counter-reset: step;
     overflow-x: auto;
     overflow-y: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: var(--stepper-inactive) var(--stepper-bg);
+  }
+
+  .stepper-nav::-webkit-scrollbar {
+    height: 0.5rem;
+  }
+
+  .stepper-nav::-webkit-scrollbar-track {
+    background: var(--stepper-bg);
+    border-radius: 0.25rem;
+  }
+
+  .stepper-nav::-webkit-scrollbar-thumb {
+    background: var(--stepper-inactive);
+    border-radius: 0.25rem;
+    border: 2px solid var(--stepper-bg);
+  }
+
+  .stepper-nav::-webkit-scrollbar-thumb:hover {
+    background: var(--stepper-primary);
   }
 
   .stepper-nav li {
