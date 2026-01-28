@@ -1,6 +1,6 @@
 # Accessible Stepper Component
 
-A WCAG 2.2 AA compliant stepper/wizard component built as a vanilla Web Component with React wrapper support.
+A WCAG 2.2 AA compliant stepper/wizard component built as a vanilla Web Component with TypeScript React wrapper support.
 
 ## Features
 
@@ -8,17 +8,24 @@ A WCAG 2.2 AA compliant stepper/wizard component built as a vanilla Web Componen
 - **Two display modes** — numbered steps (1, 2, 3…) or percentage progress bar
 - **Keyboard accessible** — Tab/Shift+Tab, Enter/Space activation
 - **Framework agnostic** — native Web Component, works anywhere
+- **TypeScript ready** — fully typed React wrapper with strict mode
 - **React ready** — hooks, HOC, and context patterns included
 - **Zero dependencies** — ~8KB unminified
+
+**[View Live Demo](https://dylarcher.github.io/multistep/)** | **[GitHub Repository](https://github.com/dylarcher/multistep)**
 
 ---
 
 ## Installation
 
 ```bash
-# Copy files to your project
-accessible-stepper.js    # Web Component
-react-wrapper.jsx        # React integration (optional)
+# Install from npm (coming soon)
+npm install @dylarcher/multistep
+
+# Or copy files to your project
+main.js              # Web Component (JSDoc annotated)
+hoc/react.tsx        # React integration (TypeScript)
+styles.css           # Optional demo styles
 ```
 
 ---
@@ -28,7 +35,7 @@ react-wrapper.jsx        # React integration (optional)
 ### Vanilla JavaScript
 
 ```html
-<script type="module" src="./accessible-stepper.js"></script>
+<script type="module" src="./main.js"></script>
 
 <accessible-stepper current="0" mode="steps">
   <div data-step data-label="Account">
@@ -59,10 +66,11 @@ react-wrapper.jsx        # React integration (optional)
 </script>
 ```
 
-### React
+### React (TypeScript)
 
-```jsx
-import { AccessibleStepper, Step } from './react-wrapper.jsx';
+```tsx
+import { useState } from 'react';
+import { AccessibleStepper, Step } from './hoc/react';
 
 function Wizard() {
   const [step, setStep] = useState(0);
@@ -90,6 +98,8 @@ function Wizard() {
   );
 }
 ```
+
+> **Note:** The React wrapper is fully TypeScript with comprehensive type definitions. Import from `./hoc/react.tsx` or configure your build tool to resolve `./hoc/react`.
 
 ---
 
@@ -149,8 +159,8 @@ accessible-stepper {
 
 The `useAccessibleStepper` hook manages state independently—useful when you need custom UI or integration with form libraries.
 
-```jsx
-import { useAccessibleStepper } from './react-wrapper.jsx';
+```tsx
+import { useAccessibleStepper, UseAccessibleStepperOptions, StepperState } from './hoc/react';
 
 function CustomWizard() {
   const stepper = useAccessibleStepper(3, {
@@ -217,8 +227,8 @@ function CustomWizard() {
 
 Share stepper state across deeply nested components.
 
-```jsx
-import { StepperProvider, useStepper, Step } from './react-wrapper.jsx';
+```tsx
+import { StepperProvider, useStepper, Step } from './hoc/react';
 
 function App() {
   return (
@@ -265,8 +275,8 @@ function WizardFooter() {
 
 Wrap existing components to inject stepper functionality.
 
-```jsx
-import { withStepper } from './react-wrapper.jsx';
+```tsx
+import { withStepper } from './hoc/react';
 
 function CheckoutForm({ stepper }) {
   return (
@@ -286,8 +296,8 @@ export default withStepper(CheckoutForm, 4, {
 
 When you need the raw web component methods:
 
-```jsx
-import { useStepperRef } from './react-wrapper.jsx';
+```tsx
+import { useStepperRef, AccessibleStepperElement } from './hoc/react';
 
 function Wizard() {
   const [ref, api] = useStepperRef();
@@ -301,6 +311,22 @@ function Wizard() {
   );
 }
 ```
+
+---
+
+## Live Demo
+
+The [index.html](index.html) file includes a comprehensive demo showcasing all component features:
+
+1. **Basic Steps Mode** - Standard numbered steps with navigation
+2. **Progress Bar Mode** - Percentage-based progress indicator
+3. **Allow Navigation** - Click completed steps to go back
+4. **Form Wizard** - Multi-step form with validation
+5. **Custom Themes** - Dark mode and custom color schemes
+
+**[View Live Demo →](https://dylarcher.github.io/multistep/)**
+
+The demo includes event logging and manual controls to test all component features interactively.
 
 ---
 
@@ -419,9 +445,9 @@ accessible-stepper .stepper-nav li:not(:last-child)::after {
 
 ### React Hook Form
 
-```jsx
+```tsx
 import { useForm } from 'react-hook-form';
-import { useAccessibleStepper, AccessibleStepper, Step } from './react-wrapper.jsx';
+import { useAccessibleStepper, AccessibleStepper, Step } from './hoc/react';
 
 function MultiStepForm() {
   const { register, handleSubmit, trigger, formState: { errors } } = useForm();
@@ -464,42 +490,42 @@ function MultiStepForm() {
 
 ---
 
-## TypeScript Definitions
+## TypeScript Support
 
-```ts
-// accessible-stepper.d.ts
-declare module './accessible-stepper.js' {
-  export class AccessibleStepper extends HTMLElement {
-    currentStep: number;
-    readonly totalSteps: number;
-    readonly progress: number;
-    readonly steps: Element[];
-    next(): void;
-    previous(): void;
-    goTo(index: number): void;
-  }
+The React wrapper ([hoc/react.tsx](hoc/react.tsx)) is fully TypeScript with comprehensive type definitions and strict mode enabled. All types are exported for your use:
+
+```tsx
+import type {
+  AccessibleStepperElement,
+  StepperState,
+  UseAccessibleStepperOptions,
+  StepChangeDetail,
+  CompleteDetail,
+  AccessibleStepperProps,
+  StepProps,
+} from './hoc/react';
+
+// Web Component interface
+interface AccessibleStepperElement extends HTMLElement {
+  currentStep: number;
+  readonly totalSteps: number;
+  readonly progress: number;
+  readonly steps: Element[];
+  next(): void;
+  previous(): void;
+  goTo(index: number): void;
 }
 
-// react-wrapper.d.ts
-interface StepChangeDetail {
-  current: number;
-  previous: number;
-  total: number;
-  label: string;
-  progress: number;
-}
-
+// Hook options
 interface UseAccessibleStepperOptions {
   initialStep?: number;
   onStepChange?: (current: number, previous: number) => void;
-  onComplete?: (data: Record<number, unknown>) => void;
+  onComplete?: (data: Record<number, unknown>) => void | Promise<void>;
   validateStep?: (step: number, data: unknown) => boolean | string | Promise<boolean | string>;
 }
 
-declare function useAccessibleStepper(
-  totalSteps: number,
-  options?: UseAccessibleStepperOptions
-): {
+// Hook return value
+interface StepperState {
   currentStep: number;
   totalSteps: number;
   progress: number;
@@ -514,10 +540,62 @@ declare function useAccessibleStepper(
   goTo: (step: number) => boolean;
   complete: () => Promise<boolean>;
   reset: () => void;
-  updateStepData: (step: number, data: object) => void;
+  updateStepData: (step: number, data: Record<string, unknown>) => void;
   setCurrentStep: (step: number) => void;
-};
+}
 ```
+
+The vanilla Web Component ([main.js](main.js)) includes comprehensive JSDoc annotations for type safety in JavaScript projects:
+
+```javascript
+/**
+ * @typedef {Object} StepChangeDetail
+ * @property {number} current - Current step index
+ * @property {number} previous - Previous step index
+ * @property {number} total - Total number of steps
+ * @property {string} label - Current step label
+ * @property {number} progress - Completion percentage (0-100)
+ */
+```
+
+---
+
+## Project Structure
+
+```
+multistep/
+├── main.js              # Web Component (JSDoc annotated)
+├── hoc/
+│   └── react.tsx        # TypeScript React wrapper
+├── index.html           # Live demo (GitHub Pages)
+├── styles.css           # Demo page styles
+├── biome.json           # Linting & formatting config
+├── tsconfig.json        # TypeScript configuration
+├── package.json         # Dependencies & scripts
+├── README.md            # This file
+└── RESEARCH.md          # Implementation research
+```
+
+### Development
+
+```bash
+# Install dependencies
+pnpm install
+
+# Type check TypeScript files
+pnpm type-check
+
+# Lint and format (requires biome)
+biome check --write .
+
+# View demo
+open index.html
+```
+
+**Quality Tools:**
+- **Biome** - Fast linting and formatting for JavaScript
+- **TypeScript** - Strict mode type checking for React wrapper
+- **JSDoc** - Type annotations for vanilla Web Component
 
 ---
 

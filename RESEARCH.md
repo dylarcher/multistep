@@ -104,77 +104,214 @@ For modal or wizard patterns requiring focus containment, implement a focus trap
 
 Custom Elements provide a clean encapsulation model for accessible steppers. Shadow DOM does not break ARIA relationships—`aria-describedby` can reference IDs in the light DOM across the shadow boundary. Use CSS custom properties for theming since they pierce shadow boundaries, and `::slotted()` for styling slotted content.
 
+### Reference Implementation
+
+This repository includes a production-ready implementation in [main.js](main.js) that demonstrates these principles:
+
 ```javascript
+/**
+ * AccessibleStepper Web Component
+ * A WCAG 2.2 AA compliant stepper/wizard component
+ * @extends HTMLElement
+ */
 class AccessibleStepper extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
-    this._currentStep = 0;
-    this.announcer = null;
+    /** @type {number} Current step index (0-based) */
+    this._current = 0;
+    /** @type {'steps'|'progress'} Display mode */
+    this._mode = 'steps';
+    /** @type {boolean} Allow clicking completed steps to navigate back */
+    this._allowNavigation = false;
   }
 
   connectedCallback() {
     this.render();
-    this.announcer = this.createAnnouncer();
-    this.setupEventListeners();
-    this.showStep(0);
+    this.updateSteps();
+    this.announceStepChange();
+    this.focusCurrentStep();
   }
 
-  createAnnouncer() {
-    const div = document.createElement('div');
-    div.setAttribute('role', 'status');
-    div.setAttribute('aria-live', 'polite');
-    div.setAttribute('aria-atomic', 'true');
-    div.className = 'visually-hidden';
-    this.shadowRoot.appendChild(div);
-    return div;
+  /**
+   * Advance to the next step
+   */
+  next() {
+    if (this._current < this.steps.length - 1) {
+      this.goTo(this._current + 1);
+    }
   }
 
-  showStep(index) {
-    const steps = this.querySelectorAll('[data-step]');
-    steps.forEach((step, i) => {
-      step.hidden = i !== index;
-      step.setAttribute('aria-hidden', String(i !== index));
-    });
-    this._currentStep = index;
-    this.announce();
-    this.focusFirstInput();
+  /**
+   * Go to the previous step
+   */
+  previous() {
+    if (this._current > 0) {
+      this.goTo(this._current - 1);
+    }
+  }
+
+  /**
+   * Jumps directly to a specific step
+   * @param {number} index - The step index to navigate to (0-based)
+   */
+  goTo(index) {
+    if (Number.isNaN(index) || index < 0 || index >= this.steps.length) return;
+
+    const previous = this._current;
+    this._current = index;
+    this.updateSteps();
+    this.announceStepChange();
+    this.focusCurrentStep();
+
+    this.dispatchEvent(new CustomEvent('stepchange', {
+      bubbles: true,
+      composed: true,
+      detail: {
+        current: this._current,
+        previous,
+        total: this.steps.length,
+        label: this.steps[this._current]?.getAttribute('data-label') || '',
+        progress: this.progress,
+      },
+    }));
   }
 }
 customElements.define('accessible-stepper', AccessibleStepper);
 ```
 
-Custom events with `composed: true` cross the shadow DOM boundary, enabling parent components to react to step changes: `this.dispatchEvent(new CustomEvent('stepchange', { bubbles: true, composed: true, detail: { from, to } }))`.
+**Key Implementation Details:**
+- Comprehensive JSDoc annotations for type safety in JavaScript projects
+- Custom events with `composed: true` cross shadow boundaries
+- Two display modes: `steps` (numbered indicators) and `progress` (percentage bar)
+- Optional back-navigation by clicking completed steps
+- Live region announcements using `aria-live="polite"`
+- Focus management moving to first input or step content
+
+**Usage Example:**
+```html
+<accessible-stepper current="0" mode="steps" allow-navigation>
+  <div data-step data-label="Account">...</div>
+  <div data-step data-label="Profile">...</div>
+  <div data-step data-label="Review">...</div>
+</accessible-stepper>
+```
 
 ---
 
 ## React implementations favor hooks and context patterns
 
-A minimal React stepper architecture separates state management from presentation using a custom hook:
+A minimal React stepper architecture separates state management from presentation using a custom hook. This repository demonstrates a production-ready TypeScript implementation in [hoc/react.tsx](hoc/react.tsx).
 
-```javascript
-function useStepper(totalSteps) {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [stepData, setStepData] = useState({});
+### Reference Implementation
 
-  const next = useCallback(() => {
-    setCurrentStep(prev => Math.min(prev + 1, totalSteps - 1));
-  }, [totalSteps]);
+The TypeScript React wrapper provides multiple integration patterns:
 
-  const previous = useCallback(() => {
-    setCurrentStep(prev => Math.max(prev - 1, 0));
-  }, []);
+**1. Hook Pattern** - For custom UI and form library integration:
+```typescript
+export function useAccessibleStepper(
+  totalSteps: number,
+  options: UseAccessibleStepperOptions = {}
+): StepperState {
+  const { initialStep = 0, onStepChange, onComplete, validateStep } = options;
+
+  const [currentStep, setCurrentStep] = useState(initialStep);
+  const [stepData, setStepData] = useState<Record<number, Record<string, unknown>>>({});
+  const [errors, setErrors] = useState<Record<number, string | null>>({});
+
+  const next = useCallback(async () => {
+    if (!canGoNext) return false;
+
+    if (validateStep) {
+      const validationResult = await validateStep(currentStep, stepData[currentStep]);
+      if (validationResult !== true) {
+        setErrors((prev) => ({ ...prev, [currentStep]: validationResult as string }));
+        return false;
+      }
+    }
+
+    setErrors((prev) => ({ ...prev, [currentStep]: null }));
+    const nextStep = currentStep + 1;
+    setCurrentStep(nextStep);
+    onStepChange?.(nextStep, currentStep);
+    return true;
+  }, [canGoNext, currentStep, stepData, validateStep, onStepChange]);
+
+  // ... previous, goTo, complete, reset methods
 
   return {
-    currentStep, totalSteps, next, previous,
-    isFirst: currentStep === 0,
-    isLast: currentStep === totalSteps - 1,
-    stepData, setStepData
+    currentStep, totalSteps, progress,
+    isFirst, isLast, canGoNext, canGoPrev,
+    stepData, errors,
+    next, previous, goTo, complete, reset,
+    updateStepData, setCurrentStep,
   };
 }
 ```
 
-For applications requiring stepper state across component boundaries, wrap this in a Context provider. Higher-Order Components can add accessibility features to existing stepper implementations—`withFocusManagement` monitors step changes and moves focus, while `withAccessibility` injects ARIA attributes and keyboard handlers.
+**2. Context Pattern** - For sharing state across deeply nested components:
+```typescript
+const StepperContext = createContext<StepperState | null>(null);
+
+export function StepperProvider({ children, ...stepperOptions }: StepperProviderProps) {
+  const stepper = useAccessibleStepper(stepperOptions.totalSteps, stepperOptions);
+  return <StepperContext.Provider value={stepper}>{children}</StepperContext.Provider>;
+}
+
+export function useStepper(): StepperState {
+  const context = useContext(StepperContext);
+  if (!context) {
+    throw new Error('useStepper must be used within a StepperProvider');
+  }
+  return context;
+}
+```
+
+**3. Higher-Order Component** - For wrapping existing components:
+```typescript
+export function withStepper<P extends object>(
+  WrappedComponent: ComponentType<P & { stepper: StepperState }>,
+  totalSteps: number,
+  options: UseAccessibleStepperOptions = {}
+) {
+  return function WithStepperComponent(props: P) {
+    const stepper = useAccessibleStepper(totalSteps, options);
+    return <WrappedComponent {...props} stepper={stepper} />;
+  };
+}
+```
+
+**4. Direct Web Component Access** - When you need raw component methods:
+```typescript
+export const AccessibleStepper = forwardRef<AccessibleStepperElement, AccessibleStepperProps>(
+  function AccessibleStepper({ current = 0, mode = 'steps', allowNavigation = false, ... }, forwardedRef) {
+    const innerRef = useRef<AccessibleStepperElement>(null);
+    const ref = (forwardedRef || innerRef) as React.MutableRefObject<AccessibleStepperElement | null>;
+
+    useEffect(() => {
+      const el = ref.current;
+      if (!el) return;
+
+      const handleStepChange = (e: Event) => {
+        const customEvent = e as CustomEvent<StepChangeDetail>;
+        onStepChange?.(customEvent.detail);
+      };
+
+      el.addEventListener('stepchange', handleStepChange);
+      return () => el.removeEventListener('stepchange', handleStepChange);
+    }, [onStepChange]);
+
+    return <accessible-stepper ref={ref} current={current} mode={mode} {...props}>{children}</accessible-stepper>;
+  }
+);
+```
+
+**Type Safety:**
+The implementation uses TypeScript strict mode with comprehensive interfaces:
+- `StepperState` - Complete hook return type
+- `UseAccessibleStepperOptions` - Configuration options with validation
+- `AccessibleStepperElement` - Web Component interface
+- `StepChangeDetail` / `CompleteDetail` - Event payload types
 
 React Aria from Adobe provides the most robust building blocks for custom steppers, though it lacks a pre-built stepper component. Its hooks are tested across JAWS, NVDA, VoiceOver, and TalkBack, with behavior normalized across browsers. For rapid development, Chakra UI's `useSteps` hook offers adequate accessibility with less assembly required.
 
@@ -209,3 +346,42 @@ Mobile implementations require **minimum 44×44px touch targets** per WCAG 2.5.5
 Accessible stepper implementation requires synthesizing guidance from W3C Multi-page Forms Tutorial, WAI-ARIA 1.2's `aria-current="step"`, and multiple WCAG 2.2 success criteria since no dedicated pattern exists. The three non-negotiable accessibility requirements are **semantic ordered list structure with status text**, **live region announcements on step changes**, and **deliberate focus management** moving to the first input after transitions.
 
 For production implementations, the USWDS Step Indicator provides the most battle-tested reference for HTML/CSS structure, while React Aria offers the strongest accessibility primitives for React applications. Web Components with Shadow DOM maintain ARIA relationships across boundaries and provide framework-agnostic encapsulation. The key insight from government design system testing is that **extensive real-user testing with assistive technologies reveals nuances that automated tools and specifications miss**—GOV.UK's discovery about comma punctuation pauses exemplifies this principle.
+
+---
+
+## Reference Implementation
+
+This repository provides a complete, production-ready implementation synthesizing all research findings:
+
+**Web Component** ([main.js](main.js))
+- Vanilla JavaScript with comprehensive JSDoc type annotations
+- Shadow DOM with CSS custom properties for theming
+- Two display modes: numbered steps and progress percentage
+- Live region announcements with `aria-live="polite"`
+- Focus management targeting first input or step content
+- Custom events with `composed: true` for framework integration
+- ~8KB unminified, zero dependencies
+
+**TypeScript React Wrapper** ([hoc/react.tsx](hoc/react.tsx))
+- Strict TypeScript with comprehensive type definitions
+- Four integration patterns: Hook, Context, HOC, Direct Access
+- Async validation with step-level error tracking
+- Data persistence between steps (WCAG 3.3.7 compliance)
+- Full compatibility with React 18 and 19
+- Export all types for consumer use
+
+**Live Demo** ([index.html](https://dylarcher.github.io/multistep/))
+- Five demonstration scenarios showcasing all features
+- Interactive event logging for debugging
+- Multiple theme examples (light, dark, custom)
+- Form wizard with validation patterns
+- Manual controls for testing edge cases
+
+**Quality Tooling:**
+- Biome for fast linting and formatting
+- TypeScript strict mode type checking
+- Git hooks preventing broken commits
+
+**Repository:** [github.com/dylarcher/multistep](https://github.com/dylarcher/multistep)
+
+This implementation validates the research conclusions: combining semantic HTML, proper ARIA usage, focus management, and modern Web Components creates a truly accessible, framework-agnostic stepper that works everywhere while maintaining WCAG 2.2 AA compliance.
