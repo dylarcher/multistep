@@ -5,6 +5,8 @@ A WCAG 2.2 AA compliant stepper/wizard component built as a vanilla Web Componen
 > **Disclaimer**
 >
 > Personally, I'm not a huge fan of "Steppers" and prefer "Progression" ([example](https://dylarcher.github.io/multistep#demo-progress)) to simplify the UI labelling and state accommodations. When I think of "Stepper" components, I think of a checklist/tasklist, which may be better terminology for the use-case of a linear (or non-linear) workflow that necessitates preventing progression, limiting users until they finish or complete items. For simple progress indication a progress bar seems more than adequate to demonstrate the position users are currently at in a workflow.
+>
+> Additionally, leave state complexity and interactivity out of the "step" indicators. They're specifically intended to demonstrate positional information as opposed to becoming navigational or state conveying items. We have alerts/messaging approaches to accommodate this use-case and it muddies the waters in the separation of concerns department (not to mention, complicates the implementation and maintinence of the component). Leave the indicators in a minimal, simple to understand state for the UI.
 
 ## Features
 
