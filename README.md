@@ -2,6 +2,10 @@
 
 A WCAG 2.2 AA compliant stepper/wizard component built as a vanilla Web Component with TypeScript React wrapper support.
 
+> **Disclaimer**
+>
+> Personally, I'm not a huge fan of "Steppers" and prefer "Progression" ([example](https://dylarcher.github.io/multistep#demo-progress)) to simplify the UI labelling and state accommodations. When I think of "Stepper" components, I think of a checklist/tasklist, which may be better terminology for the use-case of a linear (or non-linear) workflow that necessitates preventing progression, limiting users until they finish or complete items. For simple progress indication a progress bar seems more than adequate to demonstrate the position users are currently at in a workflow.
+
 ## Features
 
 - **WCAG 2.2 AA+ compliant** — `aria-current="step"`, live region announcements, focus management
