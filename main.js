@@ -20,9 +20,11 @@ const styles = `
     --stepper-border: #dfe1e6;
     --stepper-focus: #4c9aff;
     --stepper-font: system-ui, -apple-system, sans-serif;
-    
+
     display: block;
     font-family: var(--stepper-font);
+    max-width: 100%;
+    overflow: hidden;
   }
 
   .visually-hidden {
@@ -45,6 +47,8 @@ const styles = `
     padding: 0;
     margin: 0 0 1.5rem;
     counter-reset: step;
+    overflow-x: auto;
+    overflow-y: hidden;
   }
 
   .stepper-nav li {
@@ -71,6 +75,9 @@ const styles = `
     justify-content: center;
     width: 2.5rem;
     height: 2.5rem;
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+    flex-shrink: 0;
     border-radius: 50%;
     font-weight: 600;
     font-size: 0.875rem;
@@ -170,6 +177,8 @@ const styles = `
     margin-top: 1.5rem;
     padding-top: 1.5rem;
     border-top: 1px solid var(--stepper-border);
+    max-width: 100%;
+    overflow: hidden;
   }
 
   .stepper-btn {
