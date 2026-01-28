@@ -1,0 +1,29 @@
+{
+  "name": "multistep",
+  "version": "1.0.0",
+  "description": "TBD",
+  "keywords": [
+    "component",
+    "ui",
+    "js",
+    "esm",
+    "native",
+    "react"
+  ],
+  "homepage": "https://github.com/dylarcher/multistep#readme",
+  "bugs": {
+    "url": "https://github.com/dylarcher/multistep/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dylarcher/multistep.git"
+  },
+  "license": "MIT",
+  "author": "Dylan Archer <dylarcher@gmail.com> (@dylarcher)",
+  "type": "module",
+  "main": "accessible-stepper.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "private": true
+}

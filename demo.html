@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accessible Stepper Component - Demo</title>
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="./accessible-stepper.js"></script>
+</head>
+<body>
+  <div class="container">
+    <header class="page-header">
+      <h1>Accessible Stepper Component</h1>
+      <p class="subtitle">WCAG 2.2 AA Compliant Stepper/Wizard Component</p>
+    </header>
+
+    <nav class="demo-nav">
+      <a href="#demo-basic">Basic Steps</a>
+      <a href="#demo-progress">Progress Bar</a>
+      <a href="#demo-navigation">Allow Navigation</a>
+      <a href="#demo-form">Form Wizard</a>
+      <a href="#demo-themes">Custom Themes</a>
+    </nav>
+
+    <!-- Demo 1: Basic Steps Mode -->
+    <section id="demo-basic" class="demo-section">
+      <h2>Demo 1: Basic Steps Mode</h2>
+      <p>Default numbered step indicators with step labels.</p>
+
+      <div class="demo-wrapper">
+        <accessible-stepper id="stepper-basic" current="0" mode="steps">
+          <div data-step data-label="Account">
+            <h3>Create Your Account</h3>
+            <p>Welcome! Let's get started by creating your account.</p>
+            <div class="form-group">
+              <label for="email-1">Email Address</label>
+              <input type="email" id="email-1" placeholder="you@example.com" />
+            </div>
+            <div class="form-group">
+              <label for="password-1">Password</label>
+              <input type="password" id="password-1" placeholder="••••••••" />
+            </div>
+          </div>
+
+          <div data-step data-label="Profile">
+            <h3>Your Profile</h3>
+            <p>Tell us a bit about yourself.</p>
+            <div class="form-group">
+              <label for="name-1">Full Name</label>
+              <input type="text" id="name-1" placeholder="John Doe" />
+            </div>
+            <div class="form-group">
+              <label for="phone-1">Phone Number</label>
+              <input type="tel" id="phone-1" placeholder="+1 (555) 123-4567" />
+            </div>
+          </div>
+
+          <div data-step data-label="Preferences">
+            <h3>Your Preferences</h3>
+            <p>Customize your experience.</p>
+            <div class="form-group">
+              <label>
+                <input type="checkbox" /> Email notifications
+              </label>
+            </div>
+            <div class="form-group">
+              <label>
+                <input type="checkbox" /> SMS notifications
+              </label>
+            </div>
+            <div class="form-group">
+              <label>
+                <input type="checkbox" /> Marketing updates
+              </label>
+            </div>
+          </div>
+
+          <div data-step data-label="Review">
+            <h3>Review & Confirm</h3>
+            <p>Please review your information before submitting.</p>
+            <div class="review-card">
+              <h4>Account Details</h4>
+              <p><strong>Email:</strong> you@example.com</p>
+              <p><strong>Name:</strong> John Doe</p>
+              <p><strong>Phone:</strong> +1 (555) 123-4567</p>
+            </div>
+          </div>
+        </accessible-stepper>
+      </div>
+
+      <div class="event-log">
+        <h4>Event Log:</h4>
+        <div id="log-basic" class="log-output"></div>
+      </div>
+    </section>
+
+    <!-- Demo 2: Progress Bar Mode -->
+    <section id="demo-progress" class="demo-section">
+      <h2>Demo 2: Progress Bar Mode</h2>
+      <p>Visual progress bar showing percentage completion.</p>
+
+      <div class="demo-wrapper">
+        <accessible-stepper id="stepper-progress" current="0" mode="progress">
+          <div data-step data-label="Upload Files">
+            <h3>Upload Your Files</h3>
+            <p>Select files to upload to your workspace.</p>
+            <div class="form-group">
+              <input type="file" multiple />
+            </div>
+            <div class="info-box">
+              <strong>Tip:</strong> You can upload multiple files at once.
+            </div>
+          </div>
+
+          <div data-step data-label="Configure Settings">
+            <h3>Configure Settings</h3>
+            <p>Set up your processing preferences.</p>
+            <div class="form-group">
+              <label for="quality-2">Quality</label>
+              <select id="quality-2">
+                <option>Standard</option>
+                <option>High</option>
+                <option>Maximum</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="format-2">Output Format</label>
+              <select id="format-2">
+                <option>PDF</option>
+                <option>DOCX</option>
+                <option>TXT</option>
+              </select>
+            </div>
+          </div>
+
+          <div data-step data-label="Processing">
+            <h3>Processing...</h3>
+            <p>Your files are being processed. This may take a few moments.</p>
+            <div class="progress-bar-demo">
+              <div class="progress-bar-fill"></div>
+            </div>
+            <p class="text-muted">Processing 3 of 5 files...</p>
+          </div>
+
+          <div data-step data-label="Download">
+            <h3>Ready to Download</h3>
+            <p>Your files have been processed successfully!</p>
+            <div class="download-card">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+              </svg>
+              <p><strong>5 files ready</strong></p>
+              <button class="download-btn">Download All</button>
+            </div>
+          </div>
+        </accessible-stepper>
+      </div>
+
+      <div class="event-log">
+        <h4>Event Log:</h4>
+        <div id="log-progress" class="log-output"></div>
+      </div>
+    </section>
+
+    <!-- Demo 3: Allow Navigation -->
+    <section id="demo-navigation" class="demo-section">
+      <h2>Demo 3: Allow Navigation to Completed Steps</h2>
+      <p>Click on completed step indicators to navigate back.</p>
+
+      <div class="demo-wrapper">
+        <accessible-stepper id="stepper-nav" current="0" mode="steps" allow-navigation>
+          <div data-step data-label="Personal Info">
+            <h3>Personal Information</h3>
+            <p>Enter your basic details.</p>
+            <div class="form-group">
+              <label for="first-name-3">First Name</label>
+              <input type="text" id="first-name-3" placeholder="John" />
+            </div>
+            <div class="form-group">
+              <label for="last-name-3">Last Name</label>
+              <input type="text" id="last-name-3" placeholder="Doe" />
+            </div>
+          </div>
+
+          <div data-step data-label="Address">
+            <h3>Address Details</h3>
+            <p>Where should we send your items?</p>
+            <div class="form-group">
+              <label for="street-3">Street Address</label>
+              <input type="text" id="street-3" placeholder="123 Main St" />
+            </div>
+            <div class="form-group">
+              <label for="city-3">City</label>
+              <input type="text" id="city-3" placeholder="New York" />
+            </div>
+          </div>
+
+          <div data-step data-label="Payment">
+            <h3>Payment Information</h3>
+            <p>Secure payment processing.</p>
+            <div class="form-group">
+              <label for="card-3">Card Number</label>
+              <input type="text" id="card-3" placeholder="•••• •••• •••• 4242" />
+            </div>
+            <div class="form-group">
+              <label for="exp-3">Expiry Date</label>
+              <input type="text" id="exp-3" placeholder="MM/YY" />
+            </div>
+          </div>
+        </accessible-stepper>
+      </div>
+
+      <div class="info-box">
+        <strong>Try it:</strong> Click the "Next" button to advance, then click on a completed step circle to navigate back!
+      </div>
+
+      <div class="event-log">
+        <h4>Event Log:</h4>
+        <div id="log-nav" class="log-output"></div>
+      </div>
+    </section>
+
+    <!-- Demo 4: Form Wizard with Validation -->
+    <section id="demo-form" class="demo-section">
+      <h2>Demo 4: Multi-Step Form Wizard</h2>
+      <p>Complete form wizard with manual control buttons.</p>
+
+      <div class="demo-wrapper">
+        <accessible-stepper id="stepper-form" current="0" mode="steps">
+          <div data-step data-label="Get Started">
+            <h3>Welcome to Our Service</h3>
+            <p>Let's set up your account in just a few steps.</p>
+            <div class="feature-list">
+              <div class="feature-item">
+                <span class="feature-icon">✓</span>
+                <span>Secure & encrypted</span>
+              </div>
+              <div class="feature-item">
+                <span class="feature-icon">✓</span>
+                <span>Takes only 2 minutes</span>
+              </div>
+              <div class="feature-item">
+                <span class="feature-icon">✓</span>
+                <span>No credit card required</span>
+              </div>
+            </div>
+          </div>
+
+          <div data-step data-label="Account">
+            <h3>Create Account</h3>
+            <div class="form-group">
+              <label for="username-4">Username</label>
+              <input type="text" id="username-4" placeholder="Choose a username" required />
+            </div>
+            <div class="form-group">
+              <label for="email-4">Email</label>
+              <input type="email" id="email-4" placeholder="you@example.com" required />
+            </div>
+            <div class="form-group">
+              <label for="password-4">Password</label>
+              <input type="password" id="password-4" placeholder="Minimum 8 characters" required />
+            </div>
+          </div>
+
+          <div data-step data-label="Verify">
+            <h3>Verify Your Email</h3>
+            <p>We've sent a verification code to your email.</p>
+            <div class="form-group">
+              <label for="code-4">Verification Code</label>
+              <input type="text" id="code-4" placeholder="Enter 6-digit code" maxlength="6" />
+            </div>
+            <p class="text-muted">Didn't receive it? <a href="#">Resend code</a></p>
+          </div>
+
+          <div data-step data-label="Complete">
+            <h3>🎉 All Set!</h3>
+            <p>Your account has been successfully created.</p>
+            <div class="success-card">
+              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+              <h4>Welcome aboard!</h4>
+              <p>You can now start using all our features.</p>
+            </div>
+          </div>
+        </accessible-stepper>
+      </div>
+
+      <div class="control-panel">
+        <h4>Manual Controls:</h4>
+        <div class="button-group">
+          <button id="btn-prev-4" class="ctrl-btn">← Previous</button>
+          <button id="btn-next-4" class="ctrl-btn">Next →</button>
+          <button id="btn-goto-4" class="ctrl-btn">Jump to Step 3</button>
+          <button id="btn-reset-4" class="ctrl-btn">Reset</button>
+        </div>
+      </div>
+
+      <div class="event-log">
+        <h4>Event Log:</h4>
+        <div id="log-form" class="log-output"></div>
+      </div>
+    </section>
+
+    <!-- Demo 5: Custom Themes -->
+    <section id="demo-themes" class="demo-section">
+      <h2>Demo 5: Custom Themes & Styling</h2>
+      <p>Examples of different color schemes and customizations.</p>
+
+      <div class="theme-grid">
+        <!-- Dark Theme -->
+        <div class="theme-demo">
+          <h3>Dark Theme</h3>
+          <accessible-stepper class="theme-dark" current="1" mode="steps">
+            <div data-step data-label="Step 1">
+              <h4>Dark Theme Example</h4>
+              <p>Perfect for dark mode interfaces.</p>
+            </div>
+            <div data-step data-label="Step 2">
+              <h4>Current Step</h4>
+              <p>Notice the custom colors.</p>
+            </div>
+            <div data-step data-label="Step 3">
+              <h4>Final Step</h4>
+              <p>Consistent styling.</p>
+            </div>
+          </accessible-stepper>
+        </div>
+
+        <!-- Success Theme -->
+        <div class="theme-demo">
+          <h3>Success Theme</h3>
+          <accessible-stepper class="theme-success" current="2" mode="steps">
+            <div data-step data-label="Start">
+              <h4>Success Theme</h4>
+              <p>Great for confirmations.</p>
+            </div>
+            <div data-step data-label="Process">
+              <h4>Processing</h4>
+              <p>Green accent colors.</p>
+            </div>
+            <div data-step data-label="Done">
+              <h4>Completed!</h4>
+              <p>All steps finished.</p>
+            </div>
+          </accessible-stepper>
+        </div>
+
+        <!-- Purple Theme -->
+        <div class="theme-demo">
+          <h3>Purple Theme</h3>
+          <accessible-stepper class="theme-purple" current="0" mode="progress">
+            <div data-step data-label="Upload">
+              <h4>Purple Variant</h4>
+              <p>Custom brand colors.</p>
+            </div>
+            <div data-step data-label="Process">
+              <h4>Processing</h4>
+              <p>Matches your brand.</p>
+            </div>
+            <div data-step data-label="Complete">
+              <h4>Done</h4>
+              <p>Cohesive design.</p>
+            </div>
+          </accessible-stepper>
+        </div>
+
+        <!-- Minimal Theme -->
+        <div class="theme-demo">
+          <h3>Minimal Theme</h3>
+          <accessible-stepper class="theme-minimal" current="1" mode="steps">
+            <div data-step data-label="Begin">
+              <h4>Minimal Style</h4>
+              <p>Clean and simple.</p>
+            </div>
+            <div data-step data-label="Continue">
+              <h4>Current</h4>
+              <p>Less visual weight.</p>
+            </div>
+            <div data-step data-label="Finish">
+              <h4>End</h4>
+              <p>Understated design.</p>
+            </div>
+          </accessible-stepper>
+        </div>
+      </div>
+    </section>
+
+    <!-- Accessibility Info -->
+    <section class="demo-section">
+      <h2>Accessibility Features</h2>
+      <div class="accessibility-info">
+        <div class="info-card">
+          <h3>Keyboard Navigation</h3>
+          <ul>
+            <li><kbd>Tab</kbd> / <kbd>Shift+Tab</kbd> - Navigate between controls</li>
+            <li><kbd>Enter</kbd> / <kbd>Space</kbd> - Activate buttons</li>
+            <li>When allow-navigation is enabled, completed steps are keyboard accessible</li>
+          </ul>
+        </div>
+
+        <div class="info-card">
+          <h3>Screen Reader Support</h3>
+          <ul>
+            <li><code>aria-current="step"</code> identifies the active step</li>
+            <li>Live region announces step changes: "Step 2 of 3: Profile"</li>
+            <li>Progress bar has proper <code>aria-valuenow</code> attributes</li>
+            <li>Focus management moves to first input on step change</li>
+          </ul>
+        </div>
+
+        <div class="info-card">
+          <h3>WCAG 2.2 AA Compliance</h3>
+          <ul>
+            <li>✓ Minimum 4.5:1 color contrast</li>
+            <li>✓ Visible focus indicators</li>
+            <li>✓ Semantic HTML with ARIA roles</li>
+            <li>✓ Logical focus order</li>
+            <li>✓ Status message announcements</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- API Documentation -->
+    <section class="demo-section">
+      <h2>Quick API Reference</h2>
+      <div class="api-grid">
+        <div class="api-card">
+          <h3>Attributes</h3>
+          <table>
+            <tr>
+              <td><code>current</code></td>
+              <td>Current step index (0-based)</td>
+            </tr>
+            <tr>
+              <td><code>mode</code></td>
+              <td>"steps" or "progress"</td>
+            </tr>
+            <tr>
+              <td><code>allow-navigation</code></td>
+              <td>Enable clicking completed steps</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="api-card">
+          <h3>Methods</h3>
+          <table>
+            <tr>
+              <td><code>.next()</code></td>
+              <td>Go to next step</td>
+            </tr>
+            <tr>
+              <td><code>.previous()</code></td>
+              <td>Go to previous step</td>
+            </tr>
+            <tr>
+              <td><code>.goTo(index)</code></td>
+              <td>Jump to specific step</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="api-card">
+          <h3>Events</h3>
+          <table>
+            <tr>
+              <td><code>stepchange</code></td>
+              <td>Fired on step change</td>
+            </tr>
+            <tr>
+              <td><code>complete</code></td>
+              <td>Fired on wizard completion</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="api-card">
+          <h3>CSS Variables</h3>
+          <table>
+            <tr>
+              <td><code>--stepper-primary</code></td>
+              <td>Primary color</td>
+            </tr>
+            <tr>
+              <td><code>--stepper-complete</code></td>
+              <td>Completed step color</td>
+            </tr>
+            <tr>
+              <td><code>--stepper-inactive</code></td>
+              <td>Inactive step color</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <footer class="page-footer">
+      <p>
+        <strong>Accessible Stepper Component</strong> -
+        WCAG 2.2 AA Compliant • Framework Agnostic • Zero Dependencies
+      </p>
+      <p class="text-muted">
+        ~8KB unminified • Works with vanilla JS, React, Vue, Angular, and more
+      </p>
+    </footer>
+  </div>
+
+  <script type="module">
+    // Helper function to safely add log entries
+    function addLogEntry(logElement, message, className = '') {
+      const entry = document.createElement('div');
+      if (className) entry.className = className;
+      entry.textContent = message;
+      logElement.appendChild(entry);
+      logElement.scrollTop = logElement.scrollHeight;
+    }
+
+    // Demo 1: Basic Steps
+    const stepperBasic = document.getElementById('stepper-basic');
+    const logBasic = document.getElementById('log-basic');
+
+    stepperBasic.addEventListener('stepchange', (e) => {
+      addLogEntry(logBasic, `Step changed to ${e.detail.current + 1}: ${e.detail.label} (${e.detail.progress}% complete)`);
+    });
+
+    stepperBasic.addEventListener('complete', () => {
+      addLogEntry(logBasic, '✓ Wizard completed!', 'log-success');
+    });
+
+    // Demo 2: Progress Bar
+    const stepperProgress = document.getElementById('stepper-progress');
+    const logProgress = document.getElementById('log-progress');
+
+    stepperProgress.addEventListener('stepchange', (e) => {
+      addLogEntry(logProgress, `Progress: ${e.detail.progress}% - ${e.detail.label}`);
+    });
+
+    stepperProgress.addEventListener('complete', () => {
+      addLogEntry(logProgress, '✓ All files downloaded!', 'log-success');
+    });
+
+    // Demo 3: Allow Navigation
+    const stepperNav = document.getElementById('stepper-nav');
+    const logNav = document.getElementById('log-nav');
+
+    stepperNav.addEventListener('stepchange', (e) => {
+      const direction = e.detail.current > e.detail.previous ? 'forward' : 'backward';
+      addLogEntry(logNav, `Navigated ${direction} to step ${e.detail.current + 1}: ${e.detail.label}`);
+    });
+
+    // Demo 4: Form Wizard with Manual Controls
+    const stepperForm = document.getElementById('stepper-form');
+    const logForm = document.getElementById('log-form');
+
+    document.getElementById('btn-prev-4').addEventListener('click', () => {
+      stepperForm.previous();
+    });
+
+    document.getElementById('btn-next-4').addEventListener('click', () => {
+      stepperForm.next();
+    });
+
+    document.getElementById('btn-goto-4').addEventListener('click', () => {
+      stepperForm.goTo(2);
+    });
+
+    document.getElementById('btn-reset-4').addEventListener('click', () => {
+      stepperForm.currentStep = 0;
+      logForm.textContent = '';
+      addLogEntry(logForm, 'Reset to beginning', 'log-info');
+    });
+
+    stepperForm.addEventListener('stepchange', (e) => {
+      addLogEntry(logForm, `Step ${e.detail.current + 1} of ${e.detail.total}: ${e.detail.label}`);
+    });
+
+    stepperForm.addEventListener('complete', () => {
+      addLogEntry(logForm, '✓ Form submitted successfully!', 'log-success');
+    });
+
+    // Smooth scroll for navigation links
+    document.querySelectorAll('.demo-nav a').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = document.querySelector(link.getAttribute('href'));
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+  </script>
+</body>
+</html>
